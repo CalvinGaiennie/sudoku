@@ -19,35 +19,20 @@ import styles from "./Board.module.css";
 // }
 
 function Board() {
-  // function createGrid() {
-  //   return Array.from({ length: 9 }).map((_, parentIndex) => (
-  //     <div key={parentIndex} className={styles.bigSquare}>
-  //       {Array.from({ length: 9 }).map((_, childIndex) => (
-  //         <p
-  //           key={childIndex}
-  //           className={styles.square}
-  //           id={`${parentIndex + 1}-${childIndex + 1}`}
-  //         >
-  //           {`s${parentIndex + 1}-i${childIndex + 1}`}
-  //         </p>
-  //       ))}
-  //     </div>
-  //   ));
-  // }
-
   //I need to use math to add classes for the large squares and use the indexes to add ids, also need to add classes or data for rows and columns
-  function createGridTwo() {
+  function createGrid() {
     return Array.from({ length: 9 }).map((_, outerIndex) => (
-      <div key={`${outerIndex}-a`}>
+      <div key={`${outerIndex}-a`} className={styles[`row${outerIndex}`]}>
         {Array.from({ length: 9 }).map((_, innerIndex) => (
           <div
             key={`${outerIndex}-${innerIndex}`}
+            className={styles[`column${innerIndex}`]}
           >{`${outerIndex}-${innerIndex}`}</div>
         ))}
       </div>
     ));
   }
-  return <div className={styles.boardContainer}>{createGridTwo()}</div>;
+  return <div className={styles.boardContainer}>{createGrid()}</div>;
 }
 
 export default Board;
