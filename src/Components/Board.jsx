@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import styles from "./Board.module.css";
 
 const board = [
@@ -13,7 +14,7 @@ const board = [
 ];
 
 function fillBoard(board) {
-  function findEmptyCell(board) {
+  function findEmptySquare(board) {
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
         if (board[row][col] === 0) {
@@ -23,13 +24,14 @@ function fillBoard(board) {
     }
     return null;
   }
+
   function solve(board) {
-    const emptyCell = findEmptyCell(board);
-    if (!emptyCell) {
+    const emptySquare = findEmptySquare(board);
+    if (!emptySquare) {
       return true;
     }
 
-    const { row, col } = emptyCell;
+    const { row, col } = emptySquare;
 
     for (let num = 1; num <= 9; num++) {
       if (checkIsValid(board, row, col, num)) {
@@ -44,6 +46,7 @@ function fillBoard(board) {
     return false;
   }
   solve(board);
+  return board;
 }
 
 function checkIsValid(board, row, col, num) {
@@ -61,8 +64,8 @@ function checkIsValid(board, row, col, num) {
         return false;
       }
     }
-    return true;
   }
+  return true;
 }
 
 function assignBorderClass(row, column) {
@@ -81,33 +84,39 @@ function assignBorderClass(row, column) {
 }
 
 function Board() {
+  const [gameBoard, setgameBoard] = useState([...board]);
+
+  useEffect(() => {
+    const newBoard = [...board];
+    fillBoard(newBoard);
+    setgameBoard(newBoard);
+  }, []);
+
   function createGrid() {
-    return Array.from({ length: 9 }).map((_, outerIndex) => (
+    return gameBoard.map((row, outerIndex) => (
       <div
         key={`${outerIndex}-a`}
         className={`${styles.row} ${`row${outerIndex}`}`}
       >
-        {Array.from({ length: 9 }).map((_, innerIndex) => (
-          <div
+        {row.map((square, innerIndex) => (
+          <button
             key={`${outerIndex}-${innerIndex}`}
             className={` ${
               styles.square
-            } ${`column${innerIndex}`} ${assignBorderClass(
+            } ${`r${outerIndex}-c${innerIndex}`} ${assignBorderClass(
               outerIndex,
               innerIndex
             )}`}
-          ></div>
+            data-value={square}
+            onClick={() => console.log(square)}
+          >
+            {square !== 0 ? square : ""}
+          </button>
         ))}
       </div>
     ));
   }
-  return (
-    <div className={styles.boardContainer}>
-      {createGrid()}
-      <button onClick={() => fillBoard(board)}>hey</button>
-      <button onClick={() => console.log(board, "hey")}>Ho</button>
-    </div>
-  );
+  return <div className={styles.boardContainer}>{createGrid()}</div>;
 }
 
 export default Board;
