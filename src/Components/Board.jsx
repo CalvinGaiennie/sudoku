@@ -13,6 +13,14 @@ const board = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
+function guess(number) {
+  if (number == "a") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function fillBoard(board) {
   function findEmptySquare(board) {
     for (let row = 0; row < 9; row++) {
@@ -86,6 +94,8 @@ function assignBorderClass(row, column) {
 function Board() {
   const [gameBoard, setgameBoard] = useState([...board]);
 
+  const numbers = Array.from({ length: 9 }, (_, i) => i + 1);
+
   useEffect(() => {
     const newBoard = [...board];
     fillBoard(newBoard);
@@ -116,7 +126,18 @@ function Board() {
       </div>
     ));
   }
-  return <div className={styles.boardContainer}>{createGrid()}</div>;
+  return (
+    <div className={styles.boardContainer}>
+      {createGrid()}
+      <div>
+        {numbers.map((number) => (
+          <button key={number} className={styles.guess} onClick={guess(number)}>
+            {number}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default Board;
