@@ -1,31 +1,23 @@
 import { useState, useEffect } from "react";
 import styles from "./Board.module.css";
 
-const board = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0],
-];
+const createEmptyBoard = () => {
+  return Array(9)
+    .fill()
+    .map(() =>
+      Array(9)
+        .fill()
+        .map(() => ({ value: 0 }))
+    );
+};
 
-function guess(number) {
-  if (number == "a") {
-    return true;
-  } else {
-    return false;
-  }
-}
+const board = createEmptyBoard();
 
 function fillBoard(board) {
   function findEmptySquare(board) {
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
-        if (board[row][col] === 0) {
+        if (board[row][col].value === 0) {
           return { row, col };
         }
       }
@@ -43,12 +35,12 @@ function fillBoard(board) {
 
     for (let num = 1; num <= 9; num++) {
       if (checkIsValid(board, row, col, num)) {
-        board[row][col] = num;
+        board[row][col].value = num;
 
         if (solve(board)) {
           return true;
         }
-        board[row][col] = 0;
+        board[row][col].value = 0;
       }
     }
     return false;
@@ -59,7 +51,7 @@ function fillBoard(board) {
 
 function checkIsValid(board, row, col, num) {
   for (let i = 0; i < 9; i++) {
-    if (board[row][i] === num || board[i][col] === num) {
+    if (board[row][i].value === num || board[i][col].value === num) {
       return false;
     }
   }
@@ -68,7 +60,7 @@ function checkIsValid(board, row, col, num) {
   const startCol = Math.floor(col / 3) * 3;
   for (let i = startRow; i < startRow + 3; i++) {
     for (let j = startCol; j < startCol + 3; j++) {
-      if (board[i][j] === num) {
+      if (board[i][j].value === num) {
         return false;
       }
     }
@@ -78,14 +70,14 @@ function checkIsValid(board, row, col, num) {
 
 function assignBorderClass(row, column) {
   const borderStyles = [];
-  if (row == 0 || row == 3 || row == 6) {
+  if (row === 0 || row === 3 || row === 6) {
     borderStyles.push(styles.topBorder);
-  } else if (row == 8) {
+  } else if (row === 8) {
     borderStyles.push(styles.bottomBorder);
   }
-  if (column == 0 || column == 3 || column == 6) {
+  if (column === 0 || column === 3 || column === 6) {
     borderStyles.push(styles.leftBorder);
-  } else if (column == 8) {
+  } else if (column === 8) {
     borderStyles.push(styles.rightBorder);
   }
   return borderStyles.join(" ");
@@ -93,45 +85,68 @@ function assignBorderClass(row, column) {
 
 function Board() {
   const [gameBoard, setgameBoard] = useState([...board]);
-
-  const numbers = Array.from({ length: 9 }, (_, i) => i + 1);
+  const [selectedSquare, setSelectedSquare] = useState(null);
 
   useEffect(() => {
-    const newBoard = [...board];
+    const newBoard = JSON.parse(JSON.stringify(board));
     fillBoard(newBoard);
     setgameBoard(newBoard);
   }, []);
 
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  function handleSquareClick(outerIndex, innerIndex) {
+    setSelectedSquare({ row: outerIndex, col: innerIndex });
+  }
+
+  function guess(number) {
+    if (
+      selectedSquare &&
+      gameBoard[selectedSquare.row][selectedSquare.col].value === number
+    ) {
+      console.log("correct");
+    } else {
+      console.log("incorrect");
+    }
+  }
+
   function createGrid() {
     return gameBoard.map((row, outerIndex) => (
-      <div
-        key={`${outerIndex}-a`}
-        className={`${styles.row} ${`row${outerIndex}`}`}
-      >
-        {row.map((square, innerIndex) => (
-          <button
-            key={`${outerIndex}-${innerIndex}`}
-            className={` ${
-              styles.square
-            } ${`r${outerIndex}-c${innerIndex}`} ${assignBorderClass(
-              outerIndex,
-              innerIndex
-            )}`}
-            data-value={square}
-            onClick={() => console.log(square)}
-          >
-            {square !== 0 ? square : ""}
-          </button>
-        ))}
+      <div key={`${outerIndex}-a`} className={`${styles.row}`}>
+        {row.map((square, innerIndex) => {
+          const isSelected =
+            selectedSquare &&
+            selectedSquare.row === outerIndex &&
+            selectedSquare.col === innerIndex;
+
+          const borderClass = assignBorderClass(outerIndex, innerIndex);
+
+          return (
+            <button
+              key={`${outerIndex}-${innerIndex}`}
+              className={`${styles.square} ${borderClass} ${
+                isSelected ? styles.selectedSquare : ""
+              }`}
+              onClick={() => handleSquareClick(outerIndex, innerIndex)}
+            >
+              {square.value !== 0 ? square.value : ""}
+            </button>
+          );
+        })}
       </div>
     ));
   }
+
   return (
     <div className={styles.boardContainer}>
       {createGrid()}
       <div>
         {numbers.map((number) => (
-          <button key={number} className={styles.guess} onClick={guess(number)}>
+          <button
+            key={number}
+            className={styles.guess}
+            onClick={() => guess(number)}
+          >
             {number}
           </button>
         ))}
