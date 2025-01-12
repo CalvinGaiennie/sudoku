@@ -9,10 +9,13 @@ function Board() {
   const [selectedSquare, setSelectedSquare] = useState(null);
   const squaresToHideRef = useRef(null);
 
-  useEffect(() => {
+  function newGame() {
     const newBoard = createEmptyBoard();
     fillBoard(newBoard, parseInt(squaresToHideRef.current.value));
     setGameBoard(newBoard);
+  }
+  useEffect(() => {
+    newGame();
   }, []);
 
   useEffect(() => {
@@ -74,6 +77,7 @@ function Board() {
           <option value="35">Medium</option>
           <option value="50">Hard</option>
         </select>
+        <button onClick={() => newGame()}>New Game</button>
       </div>
       {/* <div>{JSON.stringify(gameBoard)}</div> */}
     </div>
