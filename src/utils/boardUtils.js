@@ -7,7 +7,7 @@ export const createEmptyBoard = () => {
     .map(() =>
       Array(9)
         .fill()
-        .map(() => ({ value: 0, hidden: false }))
+        .map(() => ({ value: 0, hidden: false, correct: true }))
     );
 };
 
@@ -55,6 +55,7 @@ export function fillBoard(board, squaresToHide) {
     const col = Math.floor(Math.random() * 9);
     if (!board[row][col].hidden) {
       board[row][col].hidden = true;
+      board[row][col].correct = null;
       hiddenCount++;
     }
   }

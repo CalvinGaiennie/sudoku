@@ -52,3 +52,7 @@
 .selectedSquare {
   background-color: rgb(229, 229, 229);
 }
+
+.incorrect {
+  background-color: #fc1c1c; /* Light red background */
+}
